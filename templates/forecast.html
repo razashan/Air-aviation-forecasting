@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- head content ... -->
+</head>
+<body>
+    <div class="container">
+        <h1>Country Forecasting App - {{ forecast_type.capitalize() }} Forecast</h1>
+        <form method="POST">
+            <label for="country">Select a country:</label>
+            <select name="country" id="country">
+                {% for country in countries %}
+                    <option value="{{ country }}">{{ country }}</option>
+                {% endfor %}
+                {% endif %}
+            </select>
+            <br>
+            <label for="forecast_periods">Forecast Periods:</label>
+            <input type="number" name="forecast_periods" id="forecast_periods" value="7" min="1">
+            <br>
+            <button type="submit">Get Forecast</button>
+        </form>
+    </div>
+</body>
+</html>

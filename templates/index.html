@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Series Forecast</title>
+    <link rel="icon" href="airplane.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label, select, input,h2 {
+            margin-bottom: 10px;
+            display: block;
+            text-transform: capitalize;
+        }
+        select, input {
+            width: 100%;
+            padding: 5px;
+        }
+        th {
+        background-color: #f2f2f2;
+        padding-left: 8px;
+    }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        th.space-before {
+        white-space: nowrap;
+        padding-left: 20px;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Time Series Forecast</h1>
+        <form method="POST">
+            <label for="forecast_type">Select Forecast Type:</label>
+            <select name="forecast_type" id="forecast_type" onchange="toggleCountryAndPeriods()">
+                <option value=""> Forecast Type</option>
+                <option value="cargo">Cargo</option>
+                <option value="passengers">Passengers</option>
+            </select>
+            <div id="country_and_periods" style="display: none;">
+                <label for="country">Select a country:</label>
+                <select name="country" id="country">
+                    {% for country in countries %}
+                    <option value="{{ country }}">{{ country }}</option>
+                    {% endfor %}
+                </select>
+                <label for="forecast_periods">Forecast Periods:</label>
+                <input type="number" name="forecast_periods" id="forecast_periods" value="7" min="1">
+            </div>
+            <button type="submit">Get Forecast</button>
+        </form>
+        {% if forecast_data %}
+        <div>
+            <h2>{{ selected_country }} {{ forecast_type }} Forecast</h2>
+            <p>Forecast Periods: {{ forecast_periods }} Months</p>
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Forecast</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in forecast_data %}
+        <tr>
+            <td>{{ row['Date'] }}</td>
+            <td>{{ row['Forecast'] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+    <div id="chart-container">
+        <h3>Historical Trend </h3>
+        <div id="line-chart"></div>
+    </div>
+
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script>
+        function toggleCountryAndPeriods() {
+            var forecastType = document.getElementById("forecast_type").value;
+            var container = document.getElementById("country_and_periods");
+            if (forecastType === "cargo" || forecastType === "passengers") {
+                container.style.display = "block";
+            } else {
+                container.style.display = "none";
+            }
+        }
+        {% if forecast_data  %}
+    // Extract the forecast data from the Python dictionary and convert it to JavaScript arrays
+    var dates = [];
+    var forecasts = [];
+    {% for row in selected_cols_data  %}
+        dates.push("{{ row['Year'] }}");
+        forecasts.push({{ row[selected_country] }});
+    {% endfor %}
+
+    // Create the Matplotlib line chart
+    var trace = {
+        x: dates,
+        y: forecasts,
+        type: 'scatter',
+        mode: 'lines+markers',
+        marker: { color: 'teal' },
+        line: { shape: 'linear' },
+    };
+
+    var layout = {
+        xaxis: { title: 'Date' },
+        yaxis: { title: 'Trend  ' },
+        margin: { t: 20 },
+    };
+
+    var data = [trace];
+
+    Plotly.newPlot('line-chart', data, layout);
+    {% endif %}
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>
